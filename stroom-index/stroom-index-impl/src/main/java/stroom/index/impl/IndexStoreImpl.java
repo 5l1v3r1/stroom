@@ -23,11 +23,10 @@ import stroom.docstore.api.AuditFieldFilter;
 import stroom.docstore.api.Store;
 import stroom.docstore.api.StoreFactory;
 import stroom.explorer.shared.DocumentType;
-import stroom.importexport.migration.LegacyXMLSerialiser;
 import stroom.importexport.shared.ImportState;
 import stroom.importexport.shared.ImportState.ImportMode;
+import stroom.index.impl.migration._V07_00_00.LegacyIndexDeserialiser;
 import stroom.index.shared.IndexDoc;
-import stroom.index.shared.IndexFields;
 import stroom.security.api.SecurityContext;
 import stroom.util.shared.Message;
 import stroom.util.shared.Severity;
@@ -39,21 +38,23 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 @Singleton
 public class IndexStoreImpl implements IndexStore {
     private final Store<IndexDoc> store;
     private final SecurityContext securityContext;
     private final IndexSerialiser serialiser;
+    private final LegacyIndexDeserialiser legacyIndexDeserialiser;
 
     @Inject
     IndexStoreImpl(final StoreFactory storeFactory,
                    final SecurityContext securityContext,
-                   final IndexSerialiser serialiser) {
+                   final IndexSerialiser serialiser,
+                   final LegacyIndexDeserialiser legacyIndexDeserialiser) {
         this.store = storeFactory.createStore(serialiser, IndexDoc.DOCUMENT_TYPE, IndexDoc.class);
         this.securityContext = securityContext;
         this.serialiser = serialiser;
+        this.legacyIndexDeserialiser = legacyIndexDeserialiser;
     }
 
     ////////////////////////////////////////////////////////////////////////
@@ -160,7 +161,6 @@ public class IndexStoreImpl implements IndexStore {
     private Map<String, byte[]> convert(final DocRef docRef, final Map<String, byte[]> dataMap, final ImportState importState, final ImportMode importMode) {
         Map<String, byte[]> result = dataMap;
         if (dataMap.size() > 0 && !dataMap.containsKey("meta")) {
-            final String uuid = docRef.getUuid();
             try {
                 final boolean exists = store.exists(docRef);
                 IndexDoc document;
@@ -168,41 +168,9 @@ public class IndexStoreImpl implements IndexStore {
                     document = readDocument(docRef);
 
                 } else {
-                    final OldIndex oldIndex = new OldIndex();
-                    final LegacyXMLSerialiser legacySerialiser = new LegacyXMLSerialiser();
-                    legacySerialiser.performImport(oldIndex, dataMap);
-
-                    final long now = System.currentTimeMillis();
-                    final String userId = securityContext.getUserId();
-
-                    document = new IndexDoc();
-                    document.setType(docRef.getType());
-                    document.setUuid(uuid);
-                    document.setName(docRef.getName());
-                    document.setVersion(UUID.randomUUID().toString());
-                    document.setCreateTime(now);
-                    document.setUpdateTime(now);
-                    document.setCreateUser(userId);
-                    document.setUpdateUser(userId);
-                    document.setDescription(oldIndex.getDescription());
-                    document.setMaxDocsPerShard(oldIndex.getMaxDocsPerShard());
-                    if (oldIndex.getPartitionBy() != null) {
-                        document.setPartitionBy(IndexDoc.PartitionBy.valueOf(oldIndex.getPartitionBy().name()));
-                    }
-                    document.setPartitionSize(oldIndex.getPartitionSize());
-                    document.setShardsPerPartition(oldIndex.getShardsPerPartition());
-                    document.setRetentionDayAge(oldIndex.getRetentionDayAge());
-
-                    final IndexFields indexFields = serialiser.getIndexFieldsFromLegacyXML(oldIndex.getIndexFields());
-                    if (indexFields != null) {
-                        document.setFields(indexFields.getIndexFields());
-                    }
+                    document = legacyIndexDeserialiser.deserialise(docRef, dataMap);
                 }
-
                 result = serialiser.write(document);
-//                    if (dataMap.containsKey("resource.js")) {
-//                        result.put("js", dataMap.remove("resource.js"));
-//                    }
 
             } catch (final IOException | RuntimeException e) {
                 importState.addMessage(Severity.ERROR, e.getMessage());

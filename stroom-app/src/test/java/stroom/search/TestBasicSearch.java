@@ -37,7 +37,7 @@ import stroom.index.shared.AnalyzerType;
 import stroom.index.shared.FindIndexShardCriteria;
 import stroom.index.shared.IndexDoc;
 import stroom.index.shared.IndexField;
-import stroom.index.shared.IndexFields;
+import stroom.index.impl.IndexFieldUtil;
 import stroom.index.shared.IndexShard;
 import stroom.index.shared.IndexShardKey;
 import stroom.search.impl.shard.IndexShardSearcher;
@@ -65,7 +65,7 @@ class TestBasicSearch extends AbstractCoreIntegrationTest {
 
     @Test
     void testSimple() throws IOException {
-        final List<IndexField> indexFields = IndexFields.createStreamIndexFields();
+        final List<IndexField> indexFields = IndexFieldUtil.createStreamIndexFields();
         final IndexField idField = IndexField.createField("IdTreeNode", AnalyzerType.ALPHA_NUMERIC, false, true, true, false);
         final IndexField testField = IndexField.createField("test", AnalyzerType.ALPHA_NUMERIC, false, true, true,
                 false);

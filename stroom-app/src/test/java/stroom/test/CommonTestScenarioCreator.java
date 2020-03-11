@@ -27,7 +27,7 @@ import stroom.index.VolumeCreator;
 import stroom.index.impl.IndexStore;
 import stroom.index.shared.IndexDoc;
 import stroom.index.shared.IndexField;
-import stroom.index.shared.IndexFields;
+import stroom.index.impl.IndexFieldUtil;
 import stroom.meta.shared.Meta;
 import stroom.meta.shared.MetaFields;
 import stroom.meta.api.MetaProperties;
@@ -110,7 +110,7 @@ public class CommonTestScenarioCreator {
     }
 
     public List<IndexField> createIndexFields() {
-        final List<IndexField> indexFields = IndexFields.createStreamIndexFields();
+        final List<IndexField> indexFields = IndexFieldUtil.createStreamIndexFields();
         indexFields.add(IndexField.createField("test"));
         return indexFields;
     }

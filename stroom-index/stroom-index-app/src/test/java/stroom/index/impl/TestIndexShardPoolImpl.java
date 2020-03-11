@@ -25,7 +25,6 @@ import stroom.index.mock.MockIndexShardService;
 import stroom.index.mock.MockIndexShardWriterCache;
 import stroom.index.shared.IndexDoc;
 import stroom.index.shared.IndexField;
-import stroom.index.shared.IndexFields;
 import stroom.index.shared.IndexShardKey;
 import stroom.node.shared.Node;
 import stroom.util.concurrent.SimpleExecutor;
@@ -89,7 +88,7 @@ class TestIndexShardPoolImpl {
     private void doTest(final int threadSize, final int jobSize, final int numberOfIndexes,
                         final int shardsPerPartition, final int maxDocumentsPerIndexShard) throws InterruptedException {
         final IndexField indexField = IndexField.createField("test");
-        final List<IndexField> indexFields = IndexFields.createStreamIndexFields();
+        final List<IndexField> indexFields = IndexFieldUtil.createStreamIndexFields();
         indexFields.add(indexField);
 
         // final Set<IndexShard> closedSet = new HashSet<>();

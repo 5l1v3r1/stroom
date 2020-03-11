@@ -28,7 +28,7 @@ import stroom.index.mock.MockIndexShardWriterCache;
 import stroom.index.shared.AnalyzerType;
 import stroom.index.shared.IndexDoc;
 import stroom.index.shared.IndexField;
-import stroom.index.shared.IndexFields;
+import stroom.index.impl.IndexFieldUtil;
 import stroom.index.shared.IndexShardKey;
 import stroom.meta.shared.Meta;
 import stroom.pipeline.PipelineStore;
@@ -99,7 +99,7 @@ class TestIndexingPipeline extends AbstractProcessIntegrationTest {
             xsltDoc.setData(StreamUtil.streamToString(StroomPipelineTestFileUtil.getInputStream(SAMPLE_INDEX_XSLT)));
             xsltStore.writeDocument(xsltDoc);
 
-            final List<IndexField> indexFields = IndexFields.createStreamIndexFields();
+            final List<IndexField> indexFields = IndexFieldUtil.createStreamIndexFields();
             // indexFields.add(IndexField.createIdField(IndexConstants.ID));
             // indexFields.add(IndexField.createIdField(IndexConstants.EVENT_ID));
             indexFields.add(IndexField.createDateField("EventTime"));

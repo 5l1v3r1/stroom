@@ -22,7 +22,6 @@ import org.apache.lucene.search.SearcherManager;
 import org.junit.jupiter.api.Test;
 import stroom.index.shared.IndexDoc;
 import stroom.index.shared.IndexField;
-import stroom.index.shared.IndexFields;
 import stroom.index.shared.IndexFieldsMap;
 import stroom.index.shared.IndexShard;
 import stroom.index.shared.IndexShardKey;
@@ -42,7 +41,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class TestIndexShardIO {
 
     //    private static final IndexShardService INDEX_SHARD_SERVICE = new MockIndexShardService();
-    private static final List<IndexField> INDEX_FIELDS = IndexFields.createStreamIndexFields();
+    private static final List<IndexField> INDEX_FIELDS = IndexFieldUtil.createStreamIndexFields();
     //    private static final IndexShardWriterCache INDEX_SHARD_WRITER_CACHE = new MockIndexShardWriterCache();
 //    private static final IndexShardManager INDEX_SHARD_MANAGER = new MockIndexShardManager();
     private static final IndexStructure INDEX_CONFIG;

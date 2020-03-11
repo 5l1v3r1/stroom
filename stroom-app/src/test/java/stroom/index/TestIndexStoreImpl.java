@@ -22,9 +22,10 @@ import org.junit.jupiter.api.Test;
 import stroom.docref.DocRef;
 import stroom.index.impl.IndexSerialiser;
 import stroom.index.impl.IndexStore;
+import stroom.core.db.migration._V07_00_00.index.LegacyIndexDeserialiser;
 import stroom.index.shared.IndexDoc;
 import stroom.index.shared.IndexField;
-import stroom.index.shared.IndexFields;
+import stroom.index.impl.IndexFieldUtil;
 import stroom.test.AbstractCoreIntegrationTest;
 
 import javax.inject.Inject;
@@ -47,7 +48,7 @@ class TestIndexStoreImpl extends AbstractCoreIntegrationTest {
         refIndex = indexStore.createDocument("Ref index");
         testIndex = indexStore.createDocument("Test index");
 
-        final List<IndexField> indexFields = IndexFields.createStreamIndexFields();
+        final List<IndexField> indexFields = IndexFieldUtil.createStreamIndexFields();
         indexFields.add(IndexField.createDateField("TimeCreated"));
         indexFields.add(IndexField.createField("User"));
 
@@ -105,8 +106,8 @@ class TestIndexStoreImpl extends AbstractCoreIntegrationTest {
                 "      <termPositions>false</termPositions>\n" +
                 "   </field>\n" +
                 "</fields>\n";
-        final IndexFields indexFields = indexSerialiser.getIndexFieldsFromLegacyXML(xml);
-        assertThat(index.getFields()).isEqualTo(indexFields.getIndexFields());
+        final List<IndexField> indexFields = new LegacyIndexDeserialiser(null).getIndexFieldsFromLegacyXML(xml);
+        assertThat(index.getFields()).isEqualTo(indexFields);
     }
 
     @Test

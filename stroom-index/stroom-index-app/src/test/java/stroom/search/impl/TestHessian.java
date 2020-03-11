@@ -8,7 +8,7 @@ import stroom.dashboard.expression.v1.ValString;
 import stroom.docref.DocRef;
 import stroom.index.shared.AnalyzerType;
 import stroom.index.shared.IndexField;
-import stroom.index.shared.IndexFields;
+import stroom.index.impl.IndexFieldUtil;
 import stroom.mapreduce.v2.UnsafePairQueue;
 import stroom.query.api.v2.DateTimeFormat;
 import stroom.query.api.v2.ExpressionOperator;
@@ -137,7 +137,7 @@ class TestHessian {
     }
 
     private List<IndexField> createIndexFields() {
-        final List<IndexField> indexFields = IndexFields.createStreamIndexFields();
+        final List<IndexField> indexFields = IndexFieldUtil.createStreamIndexFields();
         indexFields.add(IndexField.createField("Feed"));
         indexFields.add(IndexField.createField("Feed (Keyword)", AnalyzerType.KEYWORD));
         indexFields.add(IndexField.createField("Action"));

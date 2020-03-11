@@ -22,7 +22,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import stroom.index.shared.IndexDoc;
 import stroom.index.shared.IndexField;
-import stroom.index.shared.IndexFields;
 import stroom.index.shared.IndexShardKey;
 import stroom.node.shared.Node;
 import stroom.test.common.util.test.StroomUnitTest;
@@ -40,7 +39,7 @@ class TestIndexShardPoolImpl2 extends StroomUnitTest {
     @Test
     void testThreadingLikeTheRealThing() throws InterruptedException {
         final IndexField indexField = IndexField.createField("test");
-        final List<IndexField> indexFields = IndexFields.createStreamIndexFields();
+        final List<IndexField> indexFields = IndexFieldUtil.createStreamIndexFields();
         indexFields.add(indexField);
 
         final Node defaultNode = new Node();

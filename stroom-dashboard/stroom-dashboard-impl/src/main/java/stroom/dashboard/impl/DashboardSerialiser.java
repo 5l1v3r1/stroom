@@ -2,17 +2,15 @@ package stroom.dashboard.impl;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import stroom.core.db.migration._V07_00_00.dashboard.LegacyDashboardDeserialiser;
 import stroom.dashboard.shared.DashboardConfig;
 import stroom.dashboard.shared.DashboardDoc;
 import stroom.docstore.api.DocumentSerialiser2;
 import stroom.docstore.api.Serialiser2;
 import stroom.docstore.api.Serialiser2Factory;
 import stroom.util.string.EncodingUtil;
-import stroom.util.xml.XMLMarshallerUtil;
 
 import javax.inject.Inject;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Map;
@@ -25,11 +23,14 @@ public class DashboardSerialiser implements DocumentSerialiser2<DashboardDoc> {
 
     private final Serialiser2<DashboardDoc> delegate;
     private final Serialiser2<DashboardConfig> dashboardConfigSerialiser;
+    private final LegacyDashboardDeserialiser legacyDashboardDeserialiser;
 
     @Inject
-    public DashboardSerialiser(final Serialiser2Factory serialiser2Factory) {
+    public DashboardSerialiser(final Serialiser2Factory serialiser2Factory,
+                               final LegacyDashboardDeserialiser legacyDashboardDeserialiser) {
         this.delegate = serialiser2Factory.createSerialiser(DashboardDoc.class);
         this.dashboardConfigSerialiser = serialiser2Factory.createSerialiser(DashboardConfig.class);
+        this.legacyDashboardDeserialiser = legacyDashboardDeserialiser;
     }
 
     @Override
@@ -39,7 +40,7 @@ public class DashboardSerialiser implements DocumentSerialiser2<DashboardDoc> {
         // Deal with old XML format data.
         final String xml = EncodingUtil.asString(data.get(XML));
         if (xml != null) {
-            document.setDashboardConfig(getDashboardConfigFromLegacyXML(xml));
+            document.setDashboardConfig(legacyDashboardDeserialiser.getDashboardConfigFromLegacyXML(xml));
         }
 
         final byte[] jsonData = data.get(JSON);
@@ -69,20 +70,6 @@ public class DashboardSerialiser implements DocumentSerialiser2<DashboardDoc> {
             document.setDashboardConfig(dashboardConfig);
         }
 
-
         return data;
-    }
-
-    public DashboardConfig getDashboardConfigFromLegacyXML(final String xml) {
-        if (xml != null) {
-            try {
-                final JAXBContext jaxbContext = JAXBContext.newInstance(DashboardConfig.class);
-                return XMLMarshallerUtil.unmarshal(jaxbContext, DashboardConfig.class, xml);
-            } catch (final JAXBException | RuntimeException e) {
-                LOGGER.error("Unable to unmarshal dashboard config", e);
-            }
-        }
-
-        return null;
     }
 }

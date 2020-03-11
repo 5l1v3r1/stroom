@@ -17,6 +17,7 @@
 
 package stroom.dashboard.impl;
 
+import stroom.core.db.migration._V07_00_00.dashboard.LegacyDashboardDeserialiser;
 import stroom.dashboard.shared.DashboardConfig;
 import stroom.dashboard.shared.DashboardDoc;
 import stroom.docref.DocRef;
@@ -25,7 +26,6 @@ import stroom.docstore.api.AuditFieldFilter;
 import stroom.docstore.api.Store;
 import stroom.docstore.api.StoreFactory;
 import stroom.explorer.shared.DocumentType;
-import stroom.importexport.migration.LegacyXMLSerialiser;
 import stroom.importexport.shared.ImportState;
 import stroom.importexport.shared.ImportState.ImportMode;
 import stroom.security.api.SecurityContext;
@@ -42,30 +42,32 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 @Singleton
 class DashboardStoreImpl implements DashboardStore {
     private final Store<DashboardDoc> store;
     private final SecurityContext securityContext;
     private final DashboardSerialiser serialiser;
+    private final LegacyDashboardDeserialiser legacyDashboardDeserialiser;
 
     private DashboardConfig template;
 
     @Inject
     DashboardStoreImpl(final StoreFactory storeFactory,
                        final SecurityContext securityContext,
-                       final DashboardSerialiser serialiser) {
+                       final DashboardSerialiser serialiser,
+                       final LegacyDashboardDeserialiser legacyDashboardDeserialiser) {
         this.store = storeFactory.createStore(serialiser, DashboardDoc.DOCUMENT_TYPE, DashboardDoc.class);
         this.securityContext = securityContext;
         this.serialiser = serialiser;
+        this.legacyDashboardDeserialiser = legacyDashboardDeserialiser;
     }
 
     private DashboardConfig getTemplate() {
         if (template == null) {
             final InputStream is = getClass().getResourceAsStream("DashboardTemplate.data.xml");
             final String xml = StreamUtil.streamToString(is);
-            template = serialiser.getDashboardConfigFromLegacyXML(xml);
+            template = legacyDashboardDeserialiser.getDashboardConfigFromLegacyXML(xml);
             CloseableUtil.closeLogAndIgnoreException(is);
         }
         return template;
@@ -181,7 +183,6 @@ class DashboardStoreImpl implements DashboardStore {
     private Map<String, byte[]> convert(final DocRef docRef, final Map<String, byte[]> dataMap, final ImportState importState, final ImportMode importMode) {
         Map<String, byte[]> result = dataMap;
         if (dataMap.size() > 1 && !dataMap.containsKey("meta") && dataMap.containsKey("xml")) {
-            final String uuid = docRef.getUuid();
             try {
                 final boolean exists = store.exists(docRef);
                 DashboardDoc document;
@@ -189,22 +190,7 @@ class DashboardStoreImpl implements DashboardStore {
                     document = readDocument(docRef);
 
                 } else {
-                    final OldDashboard oldDashboard = new OldDashboard();
-                    final LegacyXMLSerialiser legacySerialiser = new LegacyXMLSerialiser();
-                    legacySerialiser.performImport(oldDashboard, dataMap);
-
-                    final long now = System.currentTimeMillis();
-                    final String userId = securityContext.getUserId();
-
-                    document = new DashboardDoc();
-                    document.setType(docRef.getType());
-                    document.setUuid(uuid);
-                    document.setName(docRef.getName());
-                    document.setVersion(UUID.randomUUID().toString());
-                    document.setCreateTime(now);
-                    document.setUpdateTime(now);
-                    document.setCreateUser(userId);
-                    document.setUpdateUser(userId);
+                    document = legacyDashboardDeserialiser.deserialise(docRef, dataMap);
                 }
 
                 result = serialiser.write(document);

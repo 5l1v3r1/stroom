@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import stroom.config.app.AppConfig;
 import stroom.config.global.impl.ConfigMapper;
+import stroom.core.db.migration.mysql.V07_00_00_002__property_rename;
 import stroom.util.shared.PropertyPath;
 
 import java.time.Duration;

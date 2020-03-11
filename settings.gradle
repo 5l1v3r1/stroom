@@ -70,6 +70,7 @@ include 'stroom-core-client'
 include 'stroom-core-client-widget'
 include 'stroom-core'
 include 'stroom-core-shared'
+include 'stroom-core-db-migration'
 
 // Dashboard
 include 'stroom-dashboard-gwt'

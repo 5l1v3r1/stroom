@@ -32,7 +32,7 @@ import stroom.index.shared.AnalyzerType;
 import stroom.index.shared.IndexDoc;
 import stroom.index.shared.IndexField;
 import stroom.index.shared.IndexFieldType;
-import stroom.index.shared.IndexFields;
+import stroom.index.impl.IndexFieldUtil;
 import stroom.index.shared.IndexShardKey;
 import stroom.pipeline.PipelineStore;
 import stroom.pipeline.PipelineTestUtil;
@@ -85,7 +85,7 @@ class TestIndexingFilter extends AbstractProcessIntegrationTest {
 
     @Test
     void testSimpleDocuments() {
-        final List<IndexField> indexFields = IndexFields.createStreamIndexFields();
+        final List<IndexField> indexFields = IndexFieldUtil.createStreamIndexFields();
         indexFields.add(IndexField.createField("sid"));
         indexFields.add(IndexField.createField("sid2", AnalyzerType.ALPHA_NUMERIC, false, true, true, false));
         indexFields.add(new IndexField.Builder()
@@ -116,7 +116,7 @@ class TestIndexingFilter extends AbstractProcessIntegrationTest {
 
     @Test
     void testDuplicateFields() {
-        final List<IndexField> indexFields = IndexFields.createStreamIndexFields();
+        final List<IndexField> indexFields = IndexFieldUtil.createStreamIndexFields();
         indexFields.add(IndexField.createField("sid"));
         indexFields.add(IndexField.createDateField("eventTime"));
 
@@ -131,7 +131,7 @@ class TestIndexingFilter extends AbstractProcessIntegrationTest {
 
     @Test
     void testBlankDocuments() {
-        final List<IndexField> indexFields = IndexFields.createStreamIndexFields();
+        final List<IndexField> indexFields = IndexFieldUtil.createStreamIndexFields();
         indexFields.add(IndexField.createField("sid"));
 
         final List<Document> documents = doTest("TestIndexDocumentFilter/BlankDocuments.xml", indexFields);
@@ -140,7 +140,7 @@ class TestIndexingFilter extends AbstractProcessIntegrationTest {
 
     @Test
     void testInvalidContent1() {
-        final List<IndexField> indexFields = IndexFields.createStreamIndexFields();
+        final List<IndexField> indexFields = IndexFieldUtil.createStreamIndexFields();
         indexFields.add(IndexField.createField("sid"));
 
         final List<Document> documents = doTest("TestIndexDocumentFilter/InvalidContent1.xml", indexFields);
@@ -149,7 +149,7 @@ class TestIndexingFilter extends AbstractProcessIntegrationTest {
 
     @Test
     void testInvalidContent2() {
-        final List<IndexField> indexFields = IndexFields.createStreamIndexFields();
+        final List<IndexField> indexFields = IndexFieldUtil.createStreamIndexFields();
         indexFields.add(IndexField.createField("sid"));
 
         final List<Document> documents = doTest("TestIndexDocumentFilter/InvalidContent2.xml", indexFields);
@@ -158,7 +158,7 @@ class TestIndexingFilter extends AbstractProcessIntegrationTest {
 
     @Test
     void testComplexContent() {
-        final List<IndexField> indexFields = IndexFields.createStreamIndexFields();
+        final List<IndexField> indexFields = IndexFieldUtil.createStreamIndexFields();
         indexFields.add(IndexField.createField("f1", AnalyzerType.ALPHA_NUMERIC, false, true, true, true));
         indexFields.add(IndexField.createField("f2", AnalyzerType.ALPHA_NUMERIC, false, false, true, false));
         indexFields.add(IndexField.createDateField("d1"));
